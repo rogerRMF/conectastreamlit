@@ -3,22 +3,26 @@ import pandas as pd
 import pygsheets
 import json
 
-# Lê credenciais do secrets
-creds = st.secrets["gcp_service_account"]
-creds_dict = json.loads(json.dumps(dict(creds)))
+st.set_page_config(page_title="Google Sheets + Streamlit",
+                   page_icon="📊", layout="wide")
 
-# Autoriza com pygsheets
-client = pygsheets.authorize(service_account_json=creds_dict)
+# --- Autenticação via secrets ---
+creds = st.secrets["gcp_service_account"]       # pega o bloco do secrets
+# transforma dict em string JSON
+creds_json = json.dumps(dict(creds))
+client = pygsheets.authorize(service_account_json=creds_json)
 
-# Abrir planilha
-meuArquivoGoogleSheets = "https://docs.google.com/spreadsheets/d/16d4yI58TXd0BbEXqGg4Ty7wx30iskWn2nxP5pxVeKeU/"
-arquivo = client.open_by_url(meuArquivoGoogleSheets)
+# --- Conectar à planilha ---
+sheet_url = "https://docs.google.com/spreadsheets/d/16d4yI58TXd0BbEXqGg4Ty7wx30iskWn2nxP5pxVeKeU/"
+arquivo = client.open_by_url(sheet_url)
 aba = arquivo.worksheet_by_title("streamlit")
 
-# Pega dados
+# --- Ler dados ---
 data = aba.get_all_values()
 df = pd.DataFrame(data)
 
-st.write(df)
-st.title("APRENDENDO A CONECTAR GOOGLE SHEETS COM STREAMLIT")
+# --- Exibir no Streamlit ---
+st.title("📊 APRENDENDO A CONECTAR GOOGLE SHEETS COM STREAMLIT")
 st.subheader("Importando dados do Google Sheets")
+
+st.write(df)
